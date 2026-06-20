@@ -8,6 +8,7 @@ import { Card, CardContent } from "../ui/card";
 import EmptyWorkspace from "./EmptyWorkspace";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import RepoDialog from "./RepoDialog";
 
 function WorkspaceBody() {
 
@@ -22,6 +23,7 @@ function WorkspaceBody() {
   const GetGithubUserToken = async ()=>{
     const result = await axios.get('/api/github/token');
     console.log(result.data.token);
+    setToken(result.data.token);
   }
 
   const OnAddRepo = async ()=>{
@@ -44,7 +46,7 @@ function WorkspaceBody() {
         </div>
         <div>
             {!token?<Button className="cursor-pointer" onClick={OnAddRepo}>Setup</Button>
-            :<Button>+Add Repo</Button>}
+            :<RepoDialog setRefreshPage={(refresh:boolean)=>console.log(refresh)}/>}
         </div>
       </Card>
 
