@@ -1,0 +1,33 @@
+CREATE TABLE "posts" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"content" text,
+	"author_id" serial NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "repositories" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
+	"repo_id" integer NOT NULL,
+	"name" text NOT NULL,
+	"full_name" text NOT NULL,
+	"private" integer NOT NULL,
+	"html_url" text NOT NULL,
+	"description" text,
+	"language" text,
+	"default_branch" text,
+	"owner" text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "users" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text,
+	"email" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"credits" integer DEFAULT 1000 NOT NULL,
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+ALTER TABLE "posts" ADD CONSTRAINT "posts_author_id_users_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "repositories" ADD CONSTRAINT "repositories_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

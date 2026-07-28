@@ -8,27 +8,55 @@ import { Card, CardContent } from "../ui/card";
 import EmptyWorkspace from "./EmptyWorkspace";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import RepoDialog from "./RepoDialog";
+import RepoDialog, { Repo } from "./RepoDialog";
+import UserRepoList from "./UserRepoList";
+
+export type UserRepo = {
+  id: number;
+  repoId: number;
+  name: string;
+  fullName: string;
+  private: boolean,
+  htmlUrl: string;
+  description: string;
+  userId: number;
+  owner: string;
+  updatedAt: string;
+  language: string | null;
+  defaultBranch: string | null;
+}
 
 function WorkspaceBody() {
 
   const { userDetail } = useContext(UserDetailContext);
   const router = useRouter();
-  const [token,setToken] = useState('');
+  const [token, setToken] = useState('');
+  const [userRepoList, setUserRepoList] = useState<UserRepo[]>([]);
 
-  useEffect(()=>{
+  useEffect(() => {
     GetGithubUserToken();
-  },[])
+  }, [])
 
-  const GetGithubUserToken = async ()=>{
+  const GetGithubUserToken = async () => {
     const result = await axios.get('/api/github/token');
     console.log(result.data.token);
     setToken(result.data.token);
   }
 
-  const OnAddRepo = async ()=>{
+  const OnAddRepo = async () => {
     router.push('/api/github');
   }
+
+
+  const GetUserAddedRepoList = async () => {
+    const result = await axios.get('/api/user-repo?userId=' + userDetail?.id);
+    console.log(result.data)
+    setUserRepoList(result.data)
+  }
+
+  useEffect(() => {
+    GetUserAddedRepoList();
+  }, [userDetail])
 
   return (
     <div>
@@ -45,16 +73,24 @@ function WorkspaceBody() {
           <h2 className="text-lg">Connect Github & Add repository</h2>
         </div>
         <div>
-            {!token?<Button className="cursor-pointer" onClick={OnAddRepo}>Setup</Button>
-            :<RepoDialog setRefreshPage={(refresh:boolean)=>console.log(refresh)}/>}
+          {!token ? <Button className="cursor-pointer" onClick={OnAddRepo}>Setup</Button>
+            : <RepoDialog
+              setRefreshPage={(refresh: boolean) => {
+                if (refresh) {
+                  GetUserAddedRepoList();
+                }
+              }}
+              onAuthError={() => setToken('')}
+            />}
         </div>
       </Card>
 
-      <Card className='mt-10'>
+      {!userRepoList ? <Card className='mt-10'>
         <CardContent>
-        <EmptyWorkspace/>
+          <EmptyWorkspace />
         </CardContent>
       </Card>
+        : <UserRepoList repoList={userRepoList} />}
     </div>
   );
 }
