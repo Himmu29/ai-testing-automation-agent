@@ -14,7 +14,7 @@ import axios from 'axios'
 import { Input } from '../ui/input'
 import { UserDetailContext } from '@/context/UserDetailContext'
 
-type Repo = {
+export type Repo = {
   id: number;
   name: string;
   full_name: string;
@@ -28,7 +28,13 @@ type Repo = {
 }
 
 
-function RepoDialog({setRefreshPage}:{setRefreshPage:(refresh: boolean) => void}) {
+function RepoDialog({
+  setRefreshPage,
+  onAuthError
+}: {
+  setRefreshPage: (refresh: boolean) => void;
+  onAuthError?: () => void;
+}) {
   
   const [repoList, setRepoList] = useState<Repo[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null);
@@ -44,16 +50,23 @@ function RepoDialog({setRefreshPage}:{setRefreshPage:(refresh: boolean) => void}
     try {
       const result = await axios.get<Repo[]>('/api/github/repos');
       setRepoList(result.data);
-    } catch (err) {
+    } catch (err: any) {
       setError('Failed to load repositories. Please try again.');
+      if (err.response?.status === 401) {
+        onAuthError?.();
+      }
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    getRepoList();
-  }, []);
+    if (isOpen) {
+      setSelectedRepo(null);
+      setSearchTerm('');
+      getRepoList();
+    }
+  }, [isOpen]);
 
   const filteredRepoList = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -82,7 +95,7 @@ function RepoDialog({setRefreshPage}:{setRefreshPage:(refresh: boolean) => void}
       owner:selectedRepo.owner,
       updatedAt:selectedRepo.updated_at,
       language:selectedRepo.language,
-      default_branch:selectedRepo.default_branch,
+      defaultBranch:selectedRepo.default_branch,
     });
 
     console.log(result.data);

@@ -10,7 +10,7 @@ export async function GET(){
     const token = cookieStore.get('gh_token')?.value;
 
     if(!token){
-        return NextResponse.json(JSON.stringify({error:'Github token not found'}),{status:401});
+        return NextResponse.json({error:'Github token not found'},{status:401});
     }
 
     // Check cache first
@@ -28,7 +28,8 @@ export async function GET(){
         const result = await fetch(`https://api.github.com/user/repos?per_page=100&page=${page}&sort=updated`,{
             headers:{
                 Authorization:`Bearer ${token}`,
-                Accept:'application/vnd.github+json'
+                Accept:'application/vnd.github+json',
+                'User-Agent': 'ai-test-automation-agent'
             }
         }
     )
@@ -36,6 +37,11 @@ export async function GET(){
     if(!result.ok){
         const errorData = await result.json().catch(() => ({}));
         console.error('GitHub API error:', result.status, result.statusText, errorData);
+        if (result.status === 401) {
+            const response = NextResponse.json({error:`GitHub API error: ${result.statusText}`, details: errorData},{status: 401});
+            response.cookies.delete('gh_token');
+            return response;
+        }
         return NextResponse.json({error:`GitHub API error: ${result.statusText}`, details: errorData},{status: result.status});
     }
 
