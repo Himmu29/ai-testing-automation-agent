@@ -42,7 +42,7 @@ function RepoSettings({repo,setReload}:props) {
 
     return (
         <Dialog open={isOpen} onOpenChange={(open)=>setIsOpen(open)}>
-            <DialogTrigger>
+            <DialogTrigger asChild>
                 <Button className='cursor-pointer'> <Settings2 className="h-4 w-4 mr-1"/> Project Config</Button>
             </DialogTrigger>
             <DialogContent>
@@ -69,7 +69,7 @@ function RepoSettings({repo,setReload}:props) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose>
+                    <DialogClose asChild>
                         <Button className='cursor-pointer' variant={'outline'}>Cancel</Button>
                     </DialogClose>
                     <Button className='cursor-pointer' onClick={handleSaveSettings}>Save Config</Button>
