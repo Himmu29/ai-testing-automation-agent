@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "../ui/badge";
 import { Play, RefreshCcw, SettingsIcon } from "lucide-react";
 import { Button } from "../ui/button";
+import TestCaseSettingDialog from "./TestCaseSettingDialog";
 
 type Props = {
     testCases: TestCase[]
@@ -44,9 +45,7 @@ function TestCaseList({ testCases, onReload }: Props) {
                         <div className="flex gap-4">
                             <Badge variant={'secondary'}>{testCase?.type}</Badge>
                             <Badge variant={'secondary'} >Pending</Badge>
-                            <Button size={'icon'} variant={'outline'} className="cursor-pointer">
-                                <SettingsIcon className="h-4 w-4" />
-                            </Button>
+                            <TestCaseSettingDialog testCase={testCase} setReload={onReload}/>
                         </div>
                     </div>
                 ))}
@@ -59,4 +58,4 @@ function TestCaseList({ testCases, onReload }: Props) {
     )
 }
 
-export default TestCaseList; 
+export default TestCaseList;
