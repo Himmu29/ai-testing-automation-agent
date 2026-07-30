@@ -50,10 +50,11 @@ function TestCaseSettingDialog({testCase,setReload}:props) {
 
     return (
         <Dialog>
-            <DialogTrigger>
+            <DialogTrigger asChild>
                 <Button size={'icon'} variant={'outline'} className="cursor-pointer">
                     <SettingsIcon className="h-4 w-4" />
-                </Button></DialogTrigger>
+                </Button>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Edit Testing Requirements</DialogTitle>
@@ -92,7 +93,7 @@ function TestCaseSettingDialog({testCase,setReload}:props) {
                     </div>
 
                     <DialogFooter className='mt-5'>
-                        <DialogClose>
+                        <DialogClose asChild>
                             <Button variant={'outline'}>Cancel</Button>
                         </DialogClose>
                         <Button onClick={updateCase} >Update Case</Button>

@@ -20,17 +20,22 @@ type props = {
 };
 
 export type TestCase = {
-  id:number;
-  title:string;
-  description:string;
-  type:string;
-  repoId:number;
-  targetFiles:string[];
-  expectedResult:string;
-  repoName:string;
-  repoOwner:string;
-  targetRoute:string;
-}
+  id: number;
+  title: string;
+  description: string;
+  type: string;
+  repoId: number;
+  targetFiles: string[];
+  expectedResult: string;
+  repoName: string;
+  repoOwner: string;
+  targetRoute: string;
+  status: string;
+  browserbaseScript?: string | null;
+  logs?: string[] | null;
+  sessionId?: string | null;
+  sessionUrl?: string | null;
+};
 
 type StatusData = {
   totalTests : number;
@@ -72,11 +77,17 @@ function UserRepoList({ repoList,setReload }: props) {
     setTestCases([]);
     const result = await axios.get(`/api/test-cases?repoId=${repoId}`);
     console.log(result.data);
+    const userTestCases = result.data as TestCase[];
+    const passedTests = userTestCases?.filter(testCase=>testCase.status == 'passed').length || 0;
+    const failedTests = userTestCases?.filter(testCase=>testCase.status == 'failed').length || 0;
+    const passRate = userTestCases?.length ? Math.round((passedTests / userTestCases.length) * 100) : 0;
+
+
     setStatusData({
       totalTests:result.data.length,
-      passedTests:0,
-      failedTests:0,
-      passRate:0,
+      passedTests:passedTests,
+      failedTests:failedTests,
+      passRate:passRate,
     })
     setTestCases(result.data);
     setTestCaseLoading(false);
@@ -148,7 +159,8 @@ function UserRepoList({ repoList,setReload }: props) {
                 {!testCaseLoading && testCases.length > 0 
                 && <TestCaseList 
                 testCases={testCases} 
-                onReload={(repoId:number)=>GetTestCases(repoId)} />}
+                onReload={(repoId:number)=>GetTestCases(repoId)}
+                repo={repo} />}
 
                 {testCaseLoading ?
                   <h2 className="flex gap-3 items-center"><Loader2Icon className="animate-spin" />Please Wait</h2>
